@@ -5,11 +5,23 @@ from entertainment.models import Place, Rate, Comment
 from user.serializers import UserSerializer
 
 
-class CommentSerializer(serializers.ModelSerializer):
+class RelatedCommentSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", required=False)
+
     class Meta:
         model = Comment
-        fields = ("id", "created_at", "text", "related_comments")
-        read_only_fields = ("related_comments", )
+        fields = ("id", "created_at", "text", "username")
+        read_only_fields = ("username", )
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", required=False)
+    related_comments = RelatedCommentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ("id", "created_at", "text", "related_comments", "username")
+        read_only_fields = ("related_comments", "username")
 
 
 class RateSerializer(serializers.ModelSerializer):

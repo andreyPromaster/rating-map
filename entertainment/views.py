@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.gis.geos import Point
 from entertainment.models import Place, Rate, Comment
-from entertainment.serializers import PlaceSerializer, RateSerializer
+from entertainment.serializers import PlaceSerializer, RateSerializer, CommentSerializer
 
 
 @api_view(['GET'])
@@ -37,7 +37,6 @@ class PlaceListAPIView(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.
 
     @action(detail=True, methods=['post'])
     def create_rating(self, request, pk=None):
-        breakpoint()
         place = self.get_object()
         user = self.request.user
         serializer = RateSerializer(data=request.data)
@@ -48,7 +47,7 @@ class PlaceListAPIView(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.
 
         comment_data = serializer.validated_data.pop('comment', None)
         if comment_data:
-            comment = Comment.objects.create(text=comment_data["text"])
+            comment = Comment.objects.create(text=comment_data["text"], user=user)
         else:
             comment = None
         rate = Rate(**serializer.validated_data, place=place, user=user, comment=comment)
@@ -56,13 +55,26 @@ class PlaceListAPIView(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.
         return Response({"message": "Rate was created"}, status=status.HTTP_201_CREATED)
 
 
-class RatingsAPIView(generics.CreateAPIView):
+class RelatedCommentAPIView(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated, ]
-    queryset = Rate.objects.all()
+    queryset = Comment.objects.all()
     serializer_class = RateSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    @action(detail=True, methods=['post'])
+    def create_related_comment(self, request, pk=None):
+        comment = self.get_object()
+        user = self.request.user
+        serializer = CommentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        related_comment = Comment.objects.create(text=serializer.validated_data["text"], user=user)
+        comment.related_comments.add(related_comment)
+        return Response({"id": related_comment.id,
+                         "created_at": related_comment.created_at,
+                         "text": serializer.validated_data["text"],
+                         "username": user.username},
+                        status=status.HTTP_201_CREATED)
+
+
 
 
 

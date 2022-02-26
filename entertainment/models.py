@@ -41,6 +41,10 @@ class Comment(models.Model):
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     related_comments = models.ManyToManyField("self", symmetrical=False, blank=True)
+    user = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user), related_name="users_comment")
+
+    class Meta:
+        ordering = ['created_at']
 
 
 class Rate(models.Model):
@@ -51,5 +55,5 @@ class Rate(models.Model):
     comment = models.OneToOneField(Comment, on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:
-        unique_together = [["place", "user"]]
-
+        unique_together = ["place", "user"]
+        ordering = ['-created_at']
