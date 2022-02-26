@@ -2,6 +2,8 @@ from django.contrib.gis.db import models
 
 from django.contrib.auth import get_user_model
 
+from entertainment.validators import validate_rating
+
 User = get_user_model()
 
 
@@ -37,15 +39,17 @@ class Place(models.Model):
 
 class Comment(models.Model):
     text = models.TextField()
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     related_comments = models.ManyToManyField("self", symmetrical=False, blank=True)
 
 
 class Rate(models.Model):
-    rating = models.PositiveSmallIntegerField()
-    created_at = models.DateField(auto_now_add=True)
+    rating = models.PositiveSmallIntegerField(validators=[validate_rating,])
+    created_at = models.DateTimeField(auto_now_add=True)
     place = models.ForeignKey(Place, on_delete=models.CASCADE, related_name="ratings")
-    user = models.OneToOneField(User, on_delete=models.SET(get_sentinel_user), related_name="user")
+    user = models.ForeignKey(User, on_delete=models.SET(get_sentinel_user), related_name="user")
     comment = models.OneToOneField(Comment, on_delete=models.SET_NULL, null=True, blank=True)
 
+    class Meta:
+        unique_together = [["place", "user"]]
 

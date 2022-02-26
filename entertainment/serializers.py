@@ -1,12 +1,20 @@
 from django.contrib.gis.geos import Point
 from rest_framework import serializers
 
-from entertainment.models import Place, Rate
+from entertainment.models import Place, Rate, Comment
 from user.serializers import UserSerializer
 
 
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("id", "created_at", "text", "related_comments")
+        read_only_fields = ("related_comments", )
+
+
 class RateSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserSerializer(required=False)
+    comment = CommentSerializer(required=False)
 
     class Meta:
         model = Rate

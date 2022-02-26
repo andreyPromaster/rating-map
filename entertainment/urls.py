@@ -1,9 +1,10 @@
 from django.urls import path
 
 from . import views
-from .views import PlaceListAPIView
+from .views import PlaceListAPIView, RatingsAPIView
 
 urlpatterns = [
     path("ping", views.ping, name="index"),
-    path("places", PlaceListAPIView.as_view(), name="place-list")
+    path("places", PlaceListAPIView.as_view({"get": "list", "post": "create"}), name="place-list"),
+    path("places/<int:pk>/ratings", PlaceListAPIView.as_view({"post": "create_rating"}), name="comment-list"),
 ]
