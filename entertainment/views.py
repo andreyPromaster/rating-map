@@ -20,11 +20,6 @@ class PlaceListAPIView(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.
     permission_classes = [IsAuthenticated, ]
     queryset = Place.objects.all()
     serializer_class = PlaceSerializer
-    parser_classes = (MultiPartParser, FormParser, JSONParser)
-
-    def perform_create(self, serializer):
-        photo = self.request.data['photo']
-        serializer.save(image=photo)
 
     def filter_queryset(self, queryset):
         if ("longitude" in self.request.query_params

@@ -1,4 +1,5 @@
 from django.contrib.gis.geos import Point
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from entertainment.models import Place, Rate, Comment
@@ -37,6 +38,7 @@ class PlaceSerializer(serializers.ModelSerializer):
     ratings = RateSerializer(many=True, read_only=True)
     longitude = serializers.CharField(source="location.x")
     latitude = serializers.CharField(source="location.y")
+    image = Base64ImageField(required=False)
 
     class Meta:
         model = Place
