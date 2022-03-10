@@ -16,24 +16,9 @@ class Place(models.Model):
     location = models.PointField()
     address = models.CharField(max_length=255)
     image = models.ImageField(null=True, blank=True)
-    CAFE = 'cafe'
-    RESTAURANT = 'restaurant'
-    SPORT = 'sport'
-    TECH = 'tech'
-    SHOP = 'shop'
-    STUDY = 'study'
-    TYPES_OF_PLACE = [
-        (CAFE, 'Cafe'),
-        (RESTAURANT, 'Restaurant'),
-        (SPORT, 'Sport'),
-        (TECH, 'Tech'),
-        (SHOP, 'Shop'),
-        (STUDY, 'Study'),
-    ]
     type = models.CharField(
-        max_length=20,
-        choices=TYPES_OF_PLACE,
-        default=CAFE,
+        max_length=200,
+        default="shop",
     )
 
 
